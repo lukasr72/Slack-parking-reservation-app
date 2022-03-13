@@ -1,29 +1,32 @@
 const {
-  HomeTab, Header, Divider, Section, Actions, Elements, Input, Bits,
+  HomeTab, Header, Divider, Section, Actions, Elements
 } = require('slack-block-builder');
 const pluralize = require('pluralize');
-const { DateTime } = require('luxon');
 
 module.exports = (freeSlots, reservedSlots, selectedDate, reservedSlotsByUser) => {
   const todayDay = new Date();
-  var second = new Date(); second.setDate(todayDay.getDate() + 1);
-  var third = new Date(); third.setDate(todayDay.getDate() + 2);
-  var fourth = new Date(); fourth.setDate(todayDay.getDate() + 3);
-  var fifth = new Date(); fifth.setDate(todayDay.getDate() + 4);
+  const second = new Date();
+  second.setDate(todayDay.getDate() + 1);
+  const third = new Date();
+  third.setDate(todayDay.getDate() + 2);
+  const fourth = new Date();
+  fourth.setDate(todayDay.getDate() + 3);
+  const fifth = new Date();
+  fifth.setDate(todayDay.getDate() + 4);
 
   const primaryFlag = selectedDate;
 
   function getPrettyDate(pDate) {
-    return pDate.getDate() + '.' + (pDate.getMonth() + 1) + '.' + pDate.getFullYear();
+    return `${pDate.getDate()  }.${  pDate.getMonth() + 1  }.${  pDate.getFullYear()}`;
   }
 
   const homeTab = HomeTab({ callbackId: 'slots-home', privateMetaData: '' }).blocks(
     Actions({ blockId: 'slot-creation-actions' }).elements(
-      Elements.Button({ text: getPrettyDate(todayDay) }).value('app-home-nav-first-day').actionId('app-home-nav-first-day').primary(primaryFlag === 1),
-      Elements.Button({ text: getPrettyDate(second) }).value('app-home-nav-second-day').actionId('app-home-nav-second-day').primary(primaryFlag === 2),
-      Elements.Button({ text: getPrettyDate(third) }).value('app-home-nav-third-day').actionId('app-home-nav-third-day').primary(primaryFlag === 3),
-      Elements.Button({ text: getPrettyDate(fourth) }).value('app-home-nav-fourth-day').actionId('app-home-nav-fourth-day').primary(primaryFlag === 4),
-      Elements.Button({ text: getPrettyDate(fifth) }).value('app-home-nav-fifth-day').actionId('app-home-nav-fifth-day').primary(primaryFlag === 5),
+      Elements.Button({ text: getPrettyDate(todayDay) }).value('app-home-nav-first-day').actionId('app-home-nav-first-day').primary(primaryFlag === 0),
+      Elements.Button({ text: getPrettyDate(second) }).value('app-home-nav-second-day').actionId('app-home-nav-second-day').primary(primaryFlag === 1),
+      Elements.Button({ text: getPrettyDate(third) }).value('app-home-nav-third-day').actionId('app-home-nav-third-day').primary(primaryFlag === 2),
+      Elements.Button({ text: getPrettyDate(fourth) }).value('app-home-nav-fourth-day').actionId('app-home-nav-fourth-day').primary(primaryFlag === 3),
+      Elements.Button({ text: getPrettyDate(fifth) }).value('app-home-nav-fifth-day').actionId('app-home-nav-fifth-day').primary(primaryFlag === 4),
     ),
   );
 
@@ -48,11 +51,11 @@ module.exports = (freeSlots, reservedSlots, selectedDate, reservedSlotsByUser) =
           .value(`open-slot-${slot.id}-${selectedDate}`)
           .actionId('reserve-slot'),
       );
-    } else {
-      return Section({
-        text: plainText,
-      });
     }
+    
+    return Section({
+      text: plainText,
+    });
   });
 
   const reservedSlotsList = reservedSlots.map((slot) => {
@@ -69,11 +72,11 @@ module.exports = (freeSlots, reservedSlots, selectedDate, reservedSlotsByUser) =
           .actionId('free-slot')
           .danger(true),
       );
-    } else {
-      return Section({
-        text: plainText,
-      });
-    }
+    } 
+    
+    return Section({
+      text: plainText,
+    });
   });
 
   homeTab.blocks(
@@ -81,7 +84,7 @@ module.exports = (freeSlots, reservedSlots, selectedDate, reservedSlotsByUser) =
     Divider(),
     freeSlotsList,
     Divider(),
-    Header({ text: `We have ${reservedSlots.length} reserved ${pluralize('slot', reservedSlots.length)}` }),
+    Header({ text: `We have ${reservedSlots.length} ${pluralize('reservation', reservedSlots.length)}` }),
     reservedSlotsList
   );
 

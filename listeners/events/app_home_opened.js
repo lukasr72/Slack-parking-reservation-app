@@ -12,14 +12,14 @@ const appHomeOpenedCallback = async ({ client, event, body }) => {
         client,
         event.user,
         body.team_id,
-        1
+        0
       );
       return;
     }
 
     // For new users where we've never set the App Home,
     // the App Home event won't send a `view` property
-    await reloadAppHome(client, event.user, body.team_id, 1);
+    await reloadAppHome(client, event.user, body.team_id, 0);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(error);

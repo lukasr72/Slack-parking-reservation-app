@@ -13,7 +13,7 @@ const appHomeNavOpenCallback = async ({ body, ack, client }) => {
 const appHomeFirstCallback = async ({ body, ack, client }) => {
   try {
     await ack();
-    await reloadAppHome(client, body.user.id, body.team.id, 1);
+    await reloadAppHome(client, body.user.id, body.team.id, 0);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(error);
@@ -23,7 +23,7 @@ const appHomeFirstCallback = async ({ body, ack, client }) => {
 const appHomeSecondCallback = async ({ body, ack, client }) => {
   try {
     await ack();
-    await reloadAppHome(client, body.user.id, body.team.id, 2);
+    await reloadAppHome(client, body.user.id, body.team.id, 1);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(error);
@@ -33,7 +33,7 @@ const appHomeSecondCallback = async ({ body, ack, client }) => {
 const appHomeThirdCallback = async ({ body, ack, client }) => {
   try {
     await ack();
-    await reloadAppHome(client, body.user.id, body.team.id, 3);
+    await reloadAppHome(client, body.user.id, body.team.id, 2);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(error);
@@ -43,7 +43,7 @@ const appHomeThirdCallback = async ({ body, ack, client }) => {
 const appHomeFourthCallback = async ({ body, ack, client }) => {
   try {
     await ack();
-    await reloadAppHome(client, body.user.id, body.team.id, 4);
+    await reloadAppHome(client, body.user.id, body.team.id, 3);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(error);
@@ -53,7 +53,7 @@ const appHomeFourthCallback = async ({ body, ack, client }) => {
 const appHomeFifthCallback = async ({ body, ack, client }) => {
   try {
     await ack();
-    await reloadAppHome(client, body.user.id, body.team.id, 5);
+    await reloadAppHome(client, body.user.id, body.team.id, 4);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(error);

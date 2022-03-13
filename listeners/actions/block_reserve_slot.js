@@ -10,23 +10,13 @@ const reserveSlotCallback = async ({ack, action, client, body}) => {
     day = Number(day);
 
     const todayDay = new Date();
-    let date = new Date(todayDay.getFullYear() + '/' + (todayDay.getMonth() + 1) + '/' + todayDay.getDate() );
+    const date = new Date(`${todayDay.getFullYear()  }/${  todayDay.getMonth() + 1  }/${  todayDay.getDate()}` );
 
-    switch (day) {
-        case 1:
-            date.setDate(todayDay.getDate()); break;
-        case 2:
-            date.setDate(todayDay.getDate() + 1); break;
-        case 3:
-            date.setDate(todayDay.getDate() + 2); break;
-        case 4:
-            date.setDate(todayDay.getDate() + 3); break;
-        case 5:
-            date.setDate(todayDay.getDate() + 4); break;
-    }
-    const dateString = date.getFullYear() + '/' + (date.getMonth() + 1) + '/' + date.getDate();
+    date.setDate(todayDay.getDate() + day);
 
-    var queryUser = await User.findAll({
+    const dateString = `${date.getFullYear()  }/${  date.getMonth() + 1  }/${  date.getDate()}`;
+
+    const queryUser = await User.findAll({
         where: {
             id: body.user.id
         }
@@ -41,18 +31,18 @@ const reserveSlotCallback = async ({ack, action, client, body}) => {
         userId = queryUser[0].dataValues.id;
     }
 
-    let p_date = new Date(dateString);
-    p_date.setHours(p_date.getHours() + 4);
+    const pDate = new Date(dateString);
+    pDate.setHours(pDate.getHours() + 4);
 
     const existReservation = await Reservation.findAll({
         where: {
             SlotId: slotToUpdate,
-            date: p_date
+            date: pDate
         }
     });
 
     if (existReservation.length === 0) {
-        const reservation = await Reservation.build({date: p_date, UserId: userId, SlotId: slotToUpdate});
+        const reservation = await Reservation.build({date: pDate, UserId: userId, SlotId: slotToUpdate});
         await reservation.save();
 
         try {
@@ -66,7 +56,6 @@ const reserveSlotCallback = async ({ack, action, client, body}) => {
             console.error(error);
         }
     } else {
-        console.log('Stav slotu sa medzitým zmenil.');
         try {
             await ack();
             await client.views.open({
