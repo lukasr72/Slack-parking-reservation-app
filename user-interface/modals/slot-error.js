@@ -1,8 +1,8 @@
 const { Modal, Blocks } = require('slack-block-builder');
 
-module.exports = (slot) => Modal({ title: 'Reservation error', callbackId: 'slot-error-modal' })
+module.exports = () => Modal({ title: 'Reservation error', callbackId: 'slot-error-modal' })
   .blocks(
     Blocks.Section({
-      text: `Slot ${slot} reservation failed! Try again.`,
+      text: `Slot reservation failed! Please choose another slot.`,
     }),
   ).buildToJSON();

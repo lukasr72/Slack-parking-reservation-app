@@ -49,7 +49,7 @@ const reserveSlotCallback = async ({ack, action, client, body}) => {
             await ack();
             await client.views.open({
                 trigger_id: body.trigger_id,
-                view: modals.slotReserved(slotToUpdate),
+                view: modals.slotReserved(),
             });
         } catch (error) {
             // eslint-disable-next-line no-console
@@ -60,7 +60,7 @@ const reserveSlotCallback = async ({ack, action, client, body}) => {
             await ack();
             await client.views.open({
                 trigger_id: body.trigger_id,
-                view: modals.slotError(slotToUpdate),
+                view: modals.slotError(),
             });
         } catch (error) {
             // eslint-disable-next-line no-console
