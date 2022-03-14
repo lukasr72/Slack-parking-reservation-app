@@ -3,7 +3,7 @@ const reloadAppHome = require('../../utilities/reload-app-home');
 const appHomeNavOpenCallback = async ({ body, ack, client }) => {
   try {
     await ack();
-    await reloadAppHome(client, body.user.id, body.team.id, '');
+    await reloadAppHome(client, body.user.id, body.team.id, 0);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(error);

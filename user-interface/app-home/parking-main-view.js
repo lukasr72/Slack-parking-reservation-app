@@ -7,10 +7,13 @@ module.exports = (freeSlots, reservedSlots, selectedDate, reservedSlotsByUser) =
   const todayDay = new Date();
   const second = new Date();
   second.setDate(todayDay.getDate() + 1);
+
   const third = new Date();
   third.setDate(todayDay.getDate() + 2);
+
   const fourth = new Date();
   fourth.setDate(todayDay.getDate() + 3);
+
   const fifth = new Date();
   fifth.setDate(todayDay.getDate() + 4);
 
@@ -29,15 +32,6 @@ module.exports = (freeSlots, reservedSlots, selectedDate, reservedSlotsByUser) =
       Elements.Button({ text: getPrettyDate(fifth) }).value('app-home-nav-fifth-day').actionId('app-home-nav-fifth-day').primary(primaryFlag === 4),
     ),
   );
-
-  if (freeSlots.length === 0) {
-    homeTab.blocks(
-      Header({ text: 'No free slots' }),
-      Divider(),
-      Section({ text: ':(' }),
-    );
-    return homeTab.buildToJSON();
-  }
 
   const freeSlotsList = freeSlots.map((slot) => {
     const dayPart = slot.type === 'AM' ? '06:00 - 12:00' : '12:00 - 18:00'
@@ -67,7 +61,7 @@ module.exports = (freeSlots, reservedSlots, selectedDate, reservedSlotsByUser) =
       return Section({
         text: plainText,
       }).accessory(
-        Elements.Button({ text: 'Free' })
+        Elements.Button({ text: 'Cancel' })
           .value(`${slot.Reservations[0].id}-${selectedDate}`)
           .actionId('free-slot')
           .danger(true),
@@ -78,6 +72,18 @@ module.exports = (freeSlots, reservedSlots, selectedDate, reservedSlotsByUser) =
       text: plainText,
     });
   });
+
+  if (freeSlots.length === 0) {
+    homeTab.blocks(
+        Header({ text: 'No free slots' }),
+        Divider(),
+        Section({ text: ':(' }),
+        Divider(),
+        Header({ text: `We have ${reservedSlots.length} ${pluralize('reservation', reservedSlots.length)}` }),
+        reservedSlotsList
+    );
+    return homeTab.buildToJSON();
+  }
 
   homeTab.blocks(
     Header({ text: `You have ${freeSlots.length} parking ${pluralize('option', freeSlots.length)}` }),
