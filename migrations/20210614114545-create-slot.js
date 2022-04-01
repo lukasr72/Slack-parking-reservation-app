@@ -11,9 +11,6 @@ module.exports = {
         allowNull: false,
         type: Sequelize.INTEGER,
       },
-      type: {
-        type: Sequelize.ENUM('AM', 'PM'),
-      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

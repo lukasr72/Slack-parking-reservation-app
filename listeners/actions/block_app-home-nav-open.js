@@ -60,11 +60,22 @@ const appHomeFifthCallback = async ({ body, ack, client }) => {
   }
 };
 
+const appHomeMyFreeslotsCallback = async ({ body, ack, client }) => {
+  try {
+    await ack();
+    await reloadAppHome(client, body.user.id, body.team.id, -1);
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(error);
+  }
+};
+
 module.exports = {
   appHomeNavOpenCallback,
   appHomeFirstCallback,
   appHomeSecondCallback,
   appHomeThirdCallback,
   appHomeFourthCallback,  
-  appHomeFifthCallback
+  appHomeFifthCallback,
+  appHomeMyFreeslotsCallback
 };

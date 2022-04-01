@@ -11,7 +11,8 @@ module.exports = (sequelize, DataTypes) => {
      */
 
     static associate(models) {
-      Slot.hasMany(models.Reservation, { foreignKey: 'SlotId' });
+      Slot.hasMany(models.Freeslot, { foreignKey: 'slotId' });
+      Slot.belongsTo(models.User, { as: 'user' });
     }
   }
   Slot.init({
@@ -19,11 +20,7 @@ module.exports = (sequelize, DataTypes) => {
     slotNumber: {
       type: DataTypes.STRING,
       allowNull: false,
-    },    
-    type: {
-      type: DataTypes.ENUM,
-      values: ['AM', 'PM'],
-    },
+    }
   },
   {
     sequelize,

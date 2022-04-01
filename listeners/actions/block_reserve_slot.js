@@ -1,11 +1,12 @@
-const {Reservation, User} = require('../../models');
+const { Op } = require('sequelize');
+const {Freeslot, User} = require('../../models');
 const {reloadAppHome} = require('../../utilities');
 const {modals} = require('../../user-interface');
 
 const reserveSlotCallback = async ({ack, action, client, body}) => {
     await ack();
 
-    const slotToUpdate = action.value.split('-')[2];
+    const freeSlotId = action.value.split('-')[2];
     let day = action.value.split('-')[3];
     day = Number(day);
 
@@ -22,28 +23,29 @@ const reserveSlotCallback = async ({ack, action, client, body}) => {
         }
     });
 
-    let userId;
+    let pUserId;
     if (queryUser.length === 0) {
         const user = User.build({ id: body.user.id, slackWorkspaceID: body.team.id, slackUsername: body.user.username });
         await user.save();
-        userId = user.id;
+        pUserId = user.id;
     } else {
-        userId = queryUser[0].dataValues.id;
+        pUserId = queryUser[0].dataValues.id;
     }
 
     const pDate = new Date(dateString);
     pDate.setHours(pDate.getHours() + 4);
 
-    const existReservation = await Reservation.findAll({
+    const existReservation = await Freeslot.findAll({
         where: {
-            SlotId: slotToUpdate,
-            date: pDate
+            [Op.and]: [
+                {id: freeSlotId},
+                {userId: {[Op.is]: null} }
+            ]
         }
     });
 
-    if (existReservation.length === 0) {
-        const reservation = await Reservation.build({date: pDate, UserId: userId, SlotId: slotToUpdate});
-        await reservation.save();
+    if (existReservation.length === 1) {
+        await Freeslot.update({userId: pUserId}, { where: {id: freeSlotId} })
 
         try {
             await ack();
@@ -60,7 +62,7 @@ const reserveSlotCallback = async ({ack, action, client, body}) => {
             await ack();
             await client.views.open({
                 trigger_id: body.trigger_id,
-                view: modals.slotError(),
+                view: modals.slotError("Slot reservation failed! Please choose another slot."),
             });
         } catch (error) {
             // eslint-disable-next-line no-console

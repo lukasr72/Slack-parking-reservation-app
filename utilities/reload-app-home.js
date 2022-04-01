@@ -3,75 +3,97 @@ const { Op } = require('sequelize');
 const {
   parkingMainView,
 } = require('../user-interface/app-home');
-const { User, Slot, Reservation } = require('../models');
+const { User, Slot, Freeslot } = require('../models');
 
-module.exports = async (client, slackUserID, slackWorkspaceID, selectedDay) => {
+module.exports = async (client, slackUserID, pSlackWorkspaceID, selectedDay) => {
   const todayDay = new Date();
-  const date = new Date();
 
+  if (selectedDay === -1) { // show my freeslots
+    try {
+      const today = new Date(`${todayDay.getFullYear()  }/${ todayDay.getMonth() + 1 }/${  todayDay.getDate()}`);
+      const queryMyFreeslots = await Freeslot.findAll({
+        include: [
+          {
+            model: User,
+          },
+          {
+            model: Slot,
+            include: [ {model: User, as: 'user'} ],
+            where: {
+              userId: slackUserID
+            }
+          }
+        ],
+        where: {
+           date: {
+              [Op.gte]: today
+            }
+        },
+        order: [['date', 'ASC']]
+      });
+
+      await client.views.publish({
+        user_id: slackUserID,
+        view: parkingMainView([], [], selectedDay, queryMyFreeslots, slackUserID),
+      });
+      return
+
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(error);
+    }
+  }
+
+
+  const date = new Date();
   date.setDate(todayDay.getDate() + selectedDay);
 
   try {
-    const queryAllSlots = await Slot.findAll({
-      include: [
-        {
-          model: Reservation,
-          include: [User],
-        }
-      ],
-      order: [['slotNumber', 'ASC']],
-    });
-
-    if (queryAllSlots.length === 0) {  // init slots
-      for (let i = 1; i <= 1; i++) {
-        let slot;
-        slot = await Slot.build({ slotNumber: i, type: 'AM' });
-        await slot.save();
-        slot = await Slot.build({ slotNumber: i, type: 'PM' });
-        await slot.save();
-      }
-    }
-
     const startDate = new Date(`${date.getFullYear()  }/${  date.getMonth() + 1  }/${  date.getDate()}`);
-    const endDate = new Date(`${date.getFullYear()  }/${  date.getMonth() + 1  }/${  date.getDate() + 1}`);
+    const endDate = new Date(`${date.getFullYear()  }/${  date.getMonth() + 1  }/${  date.getDate()}`);
+    endDate.setDate(startDate.getDate() + 1);
 
-    const queryReservedSlots = await Slot.findAll({
+    const queryFreeSlots = await Freeslot.findAll({
       include: [
         {
-          model: Reservation,
-          include: [User],
-          where: {
-            date: {
-              [Op.between]: [startDate, endDate],
-            }
-          }
+          model: User
+        },
+        {
+          model: Slot,
+          include: [{model: User, as: 'user'},]
         }
       ],
-      order: [['slotNumber', 'ASC']]
+      where: {
+        [Op.and]: [
+          {userId: {[Op.is]: null}},
+          {date: {[Op.between]: [startDate, endDate]}}
+        ]
+      }
     });
 
-    const reservedSlotsId = queryReservedSlots.map(slot => slot.id);
-    const queryFreeSlots = queryAllSlots.filter(item => !reservedSlotsId.includes(item.id));
-
-    const reservedSlotsByUser = await Slot.findAll({
+    const queryReservedSlots = await Freeslot.findAll({
       include: [
         {
-          model: Reservation,
-          include: [User],
-          where: {
-            date: {
-              [Op.between]: [startDate, endDate],
-            },
-            UserId: slackUserID
-          }
+          model: User
+        },
+        {
+          model: Slot,
+          include: [{model: User, as: 'user'},]
         }
       ],
-      order: [['slotNumber', 'ASC']]
+        where: {
+          date: {
+            [Op.between]: [startDate, endDate],
+          },
+          userId: {
+              [Op.not]: null,
+          }
+        }
     });
 
     await client.views.publish({
       user_id: slackUserID,
-      view: parkingMainView(queryFreeSlots, queryReservedSlots, selectedDay, reservedSlotsByUser),
+      view: parkingMainView(queryFreeSlots, queryReservedSlots, selectedDay, [], slackUserID),
     });
 
   } catch (error) {
